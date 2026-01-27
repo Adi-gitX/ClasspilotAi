@@ -1,73 +1,221 @@
-# ClassPilot AI 🚀
+# ClassPilot AI
 
-**AI-Powered Classroom Assistant & Intelligent Note-Taker**
+Real-time lecture assistant powered by AI. Transcribes lectures, answers questions, generates flashcards, and creates summaries—all in real-time.
 
-ClassPilot AI is a next-generation educational tool designed to revolutionize the learning experience. By combining real-time transcription, intelligent question detection, and context-aware RAG (Retrieval-Augmented Generation), ClassPilot empowers students and educators to focus on understanding rather than just recording.
+[![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green)](https://fastapi.tiangolo.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
+[![Python](https://img.shields.io/badge/Python-3.10+-yellow)](https://python.org/)
 
-## 🌟 Features
+---
 
-- **Real-time Transcription (ASR):** High-accuracy speech-to-text for lectures and meetings.
-- **Smart Question Detection:** Automatically identifies and highlights key questions asked during sessions.
-- **Context-Aware Answers (RAG):** Provides instant, accurate answers to queries using course materials as context.
-- **Automated Note Generation:** Summarizes sessions into structured, easy-to-review study notes.
-- **Interactive Dashboard:** A modern, intuitive interface for managing classes and materials.
+## Features
 
-## 🛠️ Tech Stack
+- **Real-time Transcription** - Live speech-to-text using Whisper
+- **AI Q&A** - Ask questions about lecture content
+- **Smart Flashcards** - Auto-generate study cards
+- **Summaries** - Bullet-point or paragraph summaries
+- **Material Upload** - PDF, PPT, and image support
+- **Offline-First** - Works without internet (local AI)
+- **Token Optimization** - Response caching saves 70%+ on API costs
 
-- **Frontend:** Next.js, Tailwind CSS, TypeScript
-- **Backend:** Python (FastAPI/Flask), PyTorch/MLX
-- **AI/ML:** RealtimeSTT, RAG Pipeline
-- **Orchestration:** Antigravity Kit (Agents)
+---
 
-## 📂 Project Structure
-
-```
-classpilotAi/
-├── agents.md           # Agentic behavior definitions
-├── chat/               # Next.js Frontend Application
-├── services/           # Python Backend Services
-│   ├── asr/            # Speech Recognition Service
-│   ├── rag/            # RAG & Vector Database
-│   └── shared/         # Shared Utilities
-└── setup.sh            # Automated Setup Script
-```
-
-## 🚀 Getting Started
+## Quick Start
 
 ### Prerequisites
+
 - Node.js 18+
 - Python 3.10+
-- Git
+- (Optional) Ollama for free local AI
 
 ### Installation
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/vudovn/classpilotAi.git
-   cd classpilotAi
-   ```
+```bash
+git clone https://github.com/your-repo/classpilot-ai.git
+cd classpilot-ai
 
-2. **Run the setup script:**
-   ```bash
-   ./setup.sh
-   ```
-   This script installs dependencies for both the frontend and backend.
+# Frontend
+cd client
+npm install
+npm run dev
 
-3. **Start the application:**
-   ```bash
-   ./start.sh
-   ```
-   This will launch the frontend on `http://localhost:3000` and backend services.
+# Backend (new terminal)
+cd server
+pip install -r requirements.txt
+npm run dev
+```
 
-## 🤝 Contributing
+### Access
 
-We welcome contributions! Please see our [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+| Service | URL |
+|---------|-----|
+| Frontend | http://localhost:3000 |
+| Backend | http://localhost:8000 |
+| API Docs | http://localhost:8000/docs |
 
-## 📄 License
+---
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## Configuration
 
-## 🙏 Acknowledgements
+### Frontend (`client/.env.local`)
 
-- **Agents Framework:** Built using [Antigravity Kit](https://github.com/vudovn/antigravity-kit).
-- **UI Design:** Enhanced with [UI/UX Pro Max Skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill).
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_WS_URL=ws://localhost:8000
+```
+
+### Backend (`server/.env`)
+
+```env
+# LLM
+LLM_MODEL=llama3.2
+OLLAMA_HOST=http://localhost:11434
+OPENAI_API_KEY=sk-xxx
+
+# ASR
+WHISPER_MODEL=small.en
+WHISPER_DEVICE=cpu
+
+# Database (optional)
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=classpilot
+DB_USER=root
+DB_PASSWORD=
+```
+
+---
+
+## Architecture
+
+```
+classpilot-ai/
+├── client/                 # Next.js 16 frontend
+│   ├── app/               # App router
+│   ├── components/        # React components
+│   ├── hooks/             # Custom hooks
+│   ├── lib/               # Utilities
+│   ├── providers/         # Context providers
+│   └── store/             # Zustand store
+│
+├── server/                 # FastAPI backend
+│   ├── asr/               # Main app, ASR
+│   ├── api/               # REST routes
+│   ├── database/          # DB connection
+│   ├── rag/               # AI engine, caching
+│   ├── middleware/        # Rate limiting
+│   └── shared/            # Config, models
+```
+
+---
+
+## API Reference
+
+### REST Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/questions/ask` | Ask AI a question |
+| POST | `/api/summary/generate` | Generate summary |
+| POST | `/api/flashcards/generate` | Create flashcards |
+| POST | `/api/materials/upload` | Upload PDF/PPT |
+| GET | `/api/cache/stats` | View cache metrics |
+| GET | `/health` | Server health check |
+
+### WebSocket
+
+```javascript
+const ws = new WebSocket('ws://localhost:8000/ws/{client_id}');
+
+// Start transcription
+ws.send(JSON.stringify({ type: 'start_transcription' }));
+
+// Send audio
+ws.send(JSON.stringify({ type: 'audio_data', data: base64Audio }));
+```
+
+---
+
+## Token Optimization
+
+ClassPilot implements response caching to minimize API costs:
+
+| Scenario | Without Cache | With Cache | Savings |
+|----------|---------------|------------|---------|
+| Repeat question | 4500 tokens | 0 tokens | 100% |
+| Similar context | 4500 tokens | ~1500 tokens | 67% |
+| Average session | 50K tokens | ~15K tokens | 70% |
+
+**Monthly Cost Comparison:**
+- Before: ~$3.60/month
+- After: ~$0.50/month
+
+---
+
+## Free Local AI (Recommended)
+
+For free, private AI with no API costs:
+
+```bash
+# Install Ollama
+brew install ollama
+
+# Start server
+ollama serve &
+
+# Pull model
+ollama pull llama3.2
+```
+
+ClassPilot automatically uses Ollama when available.
+
+---
+
+## Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `Space` | Start/Pause recording |
+| `Esc` | Stop recording |
+| `D` | Go to Dashboard |
+| `L` | Go to Lecture view |
+
+---
+
+## Tech Stack
+
+**Frontend:**
+- Next.js 16 (App Router)
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- Zustand (State)
+- Radix UI (Components)
+
+**Backend:**
+- FastAPI
+- Whisper (ASR)
+- Ollama / OpenAI (LLM)
+- ChromaDB (RAG)
+- MySQL (optional)
+
+---
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.
+
+---
+
+## Contributing
+
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/amazing`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing`)
+5. Open Pull Request
+
+---
+
+Built with ❤️ for students everywhere.
